@@ -5,6 +5,7 @@
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#0B1220">
     <title>Tradutor de Horários - UFRB</title>
     <link rel="stylesheet" href="reset.css">
     <link rel="stylesheet" href="style.css">
@@ -16,24 +17,56 @@
 </head>
 
 <body>
-    <h1>Tradutor de Horários - UFRB </h1>
-    
-    <div class="inputs">
-        <input type="text" id="input_horario" placeholder="Ex: 2M123" /> 
-    </div>
-    <div class="tableContainer">
-        <table id="table">
-          <tr class="headerTable">
-            <th>Horários</th>
-            <th>Seg</th>
-            <th>Ter</th>
-            <th>Qua</th>
-            <th>Qui</th>
-            <th>Sex</th>
-            <th>Sab</th>
-          </tr>
-        </table>
+    <div class="app">
+        <div class="app_header">
+            <h1>Horários UFRB</h1>
+            <p class="app_subtitle">Adicione matérias, visualize na grade e evite choques.</p>
+        </div>
+
+        <div class="card controls" aria-label="Controles de matérias">
+            <div class="inputs">
+                <label class="field">
+                    <span class="field_label">Matéria</span>
+                    <input type="text" id="input_nome" placeholder="Ex: Cálculo I" autocomplete="off" />
+                </label>
+
+                <label class="field">
+                    <span class="field_label">Código do horário</span>
+                    <input type="text" id="input_codigo" placeholder="Ex: 2M123 4T12" autocomplete="off" />
+                </label>
+
+                <div class="actions">
+                    <button id="btn_add" type="button">Adicionar</button>
+                    <button id="btn_clear" type="button" class="secondary">Limpar</button>
+                </div>
+            </div>
+
+            <p id="message" class="message" role="status" aria-live="polite"></p>
+
+            <div id="subjects" class="subjects" aria-label="Matérias adicionadas"></div>
+        </div>
+
+        <div class="card" aria-label="Grade de horários">
+            <div class="tableContainer">
+                <table id="table">
+                    <colgroup>
+                        <col class="col-hours" />
+                        <col class="col-day" span="6" />
+                    </colgroup>
+                    <tr class="headerTable">
+                        <th>Horários</th>
+                        <th>Seg</th>
+                        <th>Ter</th>
+                        <th>Qua</th>
+                        <th>Qui</th>
+                        <th>Sex</th>
+                        <th>Sab</th>
+                    </tr>
+                </table>
+            </div>
+        </div>
+
+        <div class="app_footer">Feito por <strong>grupinho do zap</strong> <span class="muted">“Eng. Computação ALUNOS”</span></div>
     </div>
 </body>
-<footer> by grupinho do zap <i>"Eng. Computação ALUNOS"</i> </footer>
 </html>
