@@ -100,13 +100,26 @@ function pickColorFor(usedColors, index) {
 		"#34D399", 
 		"#F59E0B", 
 		"#22C55E",
+		"#E11D48",
+		"#0284C7",
+		"#8B5CF6",
+		"#10B981",
+		"#F97316",
+		"#D946EF",
+		"#06B6D4",
+		"#84CC16",
 	];
 	const available = palette.filter((c) => !usedColors.has(c));
-	return (available.length ? available : palette)[index % palette.length];
+	if (available.length) {
+		return available[0];
+	}
+	// Se todas as cores da paleta já estiverem em uso, gera cores HSL dinâmicas e distintas
+	const hue = (index * 137.5) % 360;
+	return `hsl(${Math.round(hue)}, 80%, 60%)`;
 }
 
 function pickColor() {
-	const used = new Set(subjects.map((s) => s.color));
+	const used = new Set(subjects.map((s) => s.color).filter(Boolean));
 	return pickColorFor(used, subjects.length);
 }
 
@@ -124,9 +137,10 @@ function loadSubjects() {
 		}
 
 		const incoming = parsed.filter((s) => s && typeof s === "object");
-		const used = new Set(incoming.map((s) => String(s.color || "")).filter(Boolean));
+		const used = new Set();
 		subjects = incoming.map((s, idx) => {
-			const color = s.color ? String(s.color) : pickColorFor(used, idx);
+			const validColor = s.color && s.color !== "undefined" && s.color !== "null" && typeof s.color === "string";
+			const color = validColor ? s.color : pickColorFor(used, idx);
 			used.add(color);
 			const cells = Array.isArray(s.cells) ? s.cells.map(String) : [];
 			return {
