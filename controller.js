@@ -481,23 +481,20 @@ async function onExportPDF() {
 
 	setMessage("Gerando PDF em 1 página (Paisagem)...", "info");
 
-	const overlay = document.createElement("div");
-	overlay.id = "pdf_export_overlay";
-	overlay.style.position = "fixed";
-	overlay.style.top = "0";
-	overlay.style.left = "0";
-	overlay.style.width = "100vw";
-	overlay.style.height = "100vh";
-	overlay.style.zIndex = "999999";
-	overlay.style.backgroundColor = "#070B14";
-	overlay.style.overflow = "auto";
-	overlay.style.padding = "20px";
-	overlay.style.boxSizing = "border-box";
-	overlay.style.display = "flex";
-	overlay.style.justifyContent = "center";
-	overlay.style.alignItems = "flex-start";
+async function onExportPDF() {
+	if (!subjects.length) {
+		setMessage("Adicione ao menos uma matéria para baixar o PDF.", "error");
+		return;
+	}
 
+	setMessage("Gerando PDF silenciosamente...", "info");
+
+	// Criar o card de exportação de forma completamente invisível (off-screen)
 	const card = document.createElement("div");
+	card.id = "pdf_export_card";
+	card.style.position = "fixed";
+	card.style.left = "-9999px";
+	card.style.top = "0";
 	card.style.width = "900px";
 	card.style.backgroundColor = "#0F172A";
 	card.style.color = "#ffffff";
@@ -505,6 +502,8 @@ async function onExportPDF() {
 	card.style.borderRadius = "12px";
 	card.style.border = "1px solid rgba(255,255,255,0.15)";
 	card.style.fontFamily = "ui-sans-serif, system-ui, -apple-system, sans-serif";
+	card.style.zIndex = "-9999";
+	card.style.pointerEvents = "none";
 
 	const header = document.createElement("div");
 	header.style.marginBottom = "10px";
@@ -642,8 +641,7 @@ async function onExportPDF() {
 	tableEl.appendChild(tbody);
 	card.appendChild(tableEl);
 
-	overlay.appendChild(card);
-	document.body.appendChild(overlay);
+	document.body.appendChild(card);
 
 	try {
 		const html2canvasFn = window.html2canvas || (typeof html2canvas !== "undefined" ? html2canvas : null);
@@ -692,15 +690,16 @@ async function onExportPDF() {
 			window.print();
 		}
 
-		if (document.body.contains(overlay)) {
-			document.body.removeChild(overlay);
+		if (document.body.contains(card)) {
+			document.body.removeChild(card);
 		}
-		setMessage("PDF em página única (Paisagem) baixado com sucesso!", "ok");
+		setMessage("PDF baixado com sucesso!", "ok");
 	} catch (err) {
 		console.error("Erro no PDF:", err);
-		if (document.body.contains(overlay)) {
-			document.body.removeChild(overlay);
+		if (document.body.contains(card)) {
+			document.body.removeChild(card);
 		}
 		setMessage("Erro ao gerar o arquivo PDF.", "error");
 	}
+}
 }
