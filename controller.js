@@ -82,40 +82,75 @@ function buildCellIndex() {
 	});
 }
 
+function hexToRgb(hex) {
+	if (!hex || typeof hex !== "string" || !hex.startsWith("#")) return [128, 128, 128];
+	let c = hex.replace("#", "");
+	if (c.length === 3) c = c.split("").map((x) => x + x).join("");
+	const num = parseInt(c, 16);
+	if (isNaN(num)) return [128, 128, 128];
+	return [(num >> 16) & 255, (num >> 8) & 255, num & 255];
+}
+
+function colorDistance(hex1, hex2) {
+	const [r1, g1, b1] = hexToRgb(hex1);
+	const [r2, g2, b2] = hexToRgb(hex2);
+	const dr = r1 - r2;
+	const dg = g1 - g2;
+	const db = b1 - b2;
+	return Math.sqrt(2 * dr * dr + 4 * dg * dg + 3 * db * db);
+}
+
 function pickColorFor(usedColors, index) {
 	const palette = [
-		"#00C2FF", 
-		"#7C5CFF", 
-		"#49F17A", 
-		"#FFB020", 
-		"#FF4D4F", 
-		"#00D68F", 
-		"#FF5CCB", 
-		"#FFD400", 
-		"#2DD4BF",
-		"#60A5FA", 
-		"#A78BFA", 
-		"#F472B6",
-		"#FB7185", 
-		"#34D399", 
-		"#F59E0B", 
-		"#22C55E",
-		"#E11D48",
-		"#0284C7",
-		"#8B5CF6",
-		"#10B981",
-		"#F97316",
-		"#D946EF",
-		"#06B6D4",
-		"#84CC16",
+		"#00C2FF", // Cyan / Azul Elétrico
+		"#FF4D4F", // Vermelho Vivo
+		"#49F17A", // Verde Limão / Neon
+		"#FFB020", // Laranja / Âmbar
+		"#A78BFA", // Roxo / Violeta
+		"#FF5CCB", // Rosa Choque / Magenta
+		"#2DD4BF", // Verde Água / Teal
+		"#FFD400", // Amarelo Ouro
+		"#3B82F6", // Azul Royal
+		"#F97316", // Laranja Vivo
+		"#10B981", // Verde Esmeralda
+		"#EC4899", // Rosa Pink
+		"#8B5CF6", // Roxo Escuro
+		"#84CC16", // Verde Limão Escuro
+		"#06B6D4", // Turquesa
+		"#E11D48", // Vermelho Carmim
 	];
+
 	const available = palette.filter((c) => !usedColors.has(c));
-	if (available.length) {
-		return available[0];
+
+	if (usedColors.size === 0) {
+		return palette[0];
 	}
-	// Se todas as cores da paleta já estiverem em uso, gera cores HSL dinâmicas e distintas
-	const hue = (index * 137.5) % 360;
-	return `hsl(${Math.round(hue)}, 80%, 60%)`;
+
+	if (available.length > 0) {
+		// Escolhe a cor disponível que tenha a MAIOR distância visual da cor mais próxima já utilizada
+		let bestColor = available[0];
+		let maxMinDist = -1;
+
+		for (const candidate of available) {
+			let minDistToUsed = Infinity;
+			for (const used of usedColors) {
+				const dist = colorDistance(candidate, used);
+				if (dist < minDistToUsed) {
+					minDistToUsed = dist;
+				}
+			}
+			if (minDistToUsed > maxMinDist) {
+				maxMinDist = minDistToUsed;
+				bestColor = candidate;
+			}
+		}
+
+		return bestColor;
+	}
+
+	// Se a paleta esgotar, gera tons HSL usando o Ângulo Áureo (137.5°) para máximo contraste
+	const hue = Math.round((index * 137.5) % 360);
+	return `hsl(${hue}, 85%, 60%)`;
 }
 
 function pickColor() {
