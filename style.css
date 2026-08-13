@@ -115,6 +115,7 @@ h1{
 }
 
 #btn_add,
+#btn_pdf,
 #btn_clear{
     border: 1px solid rgba(255,255,255,0.14);
     border-radius: 12px;
@@ -138,6 +139,16 @@ h1{
 #btn_add:disabled{
     opacity: 0.60;
     cursor: not-allowed;
+}
+
+#btn_pdf{
+    background: linear-gradient(135deg, #00C2FF 0%, #0088FF 100%);
+    border-color: rgba(0, 194, 255, 0.65);
+    color: white;
+}
+
+#btn_pdf:active{
+    transform: translateY(1px);
 }
 
 #btn_clear.secondary{
@@ -353,7 +364,7 @@ td{ height: clamp(30px, 6vw, 46px); }
 
     .actions{
         grid-column: 1 / -1;
-        grid-template-columns: 180px 180px;
+        grid-template-columns: 160px 160px 160px;
         justify-content: start;
     }
 
