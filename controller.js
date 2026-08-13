@@ -486,10 +486,10 @@ async function onExportPDF() {
 	card.style.position = "fixed";
 	card.style.top = "0";
 	card.style.left = "0";
-	card.style.width = "900px";
+	card.style.width = "1180px";
 	card.style.backgroundColor = "#0F172A";
 	card.style.color = "#ffffff";
-	card.style.padding = "16px 20px";
+	card.style.padding = "18px 24px";
 	card.style.borderRadius = "12px";
 	card.style.border = "1px solid rgba(255,255,255,0.15)";
 	card.style.fontFamily = "ui-sans-serif, system-ui, -apple-system, sans-serif";
@@ -498,13 +498,13 @@ async function onExportPDF() {
 	card.style.zIndex = "-99999";
 
 	const header = document.createElement("div");
-	header.style.marginBottom = "10px";
+	header.style.marginBottom = "12px";
 	header.style.borderBottom = "1px solid rgba(255,255,255,0.15)";
-	header.style.paddingBottom = "6px";
+	header.style.paddingBottom = "8px";
 	header.innerHTML = `
 		<div style="display:flex; justify-content:space-between; align-items:center;">
-			<h1 style="margin:0; font-size:20px; color:#ffffff; font-weight:800;">HORÁRIOS UFRB</h1>
-			<span style="font-size:11px; color:rgba(255,255,255,0.65);">Grade Semestral • Emitido em ${new Date().toLocaleDateString("pt-BR")}</span>
+			<h1 style="margin:0; font-size:22px; color:#ffffff; font-weight:800;">HORÁRIOS UFRB</h1>
+			<span style="font-size:12px; color:rgba(255,255,255,0.65);">Grade Semestral • Emitido em ${new Date().toLocaleDateString("pt-BR")}</span>
 		</div>
 	`;
 	card.appendChild(header);
@@ -512,28 +512,28 @@ async function onExportPDF() {
 	const legendGrid = document.createElement("div");
 	legendGrid.style.display = "grid";
 	legendGrid.style.gridTemplateColumns = "repeat(3, 1fr)";
-	legendGrid.style.gap = "4px 8px";
-	legendGrid.style.marginBottom = "10px";
+	legendGrid.style.gap = "6px 10px";
+	legendGrid.style.marginBottom = "12px";
 
 	for (const s of subjects) {
 		const item = document.createElement("div");
 		item.style.display = "flex";
 		item.style.alignItems = "center";
-		item.style.gap = "6px";
-		item.style.padding = "3px 6px";
+		item.style.gap = "8px";
+		item.style.padding = "4px 8px";
 		item.style.backgroundColor = "#1E293B";
-		item.style.borderRadius = "5px";
+		item.style.borderRadius = "6px";
 		item.style.border = "1px solid rgba(255,255,255,0.1)";
 
 		const badge = document.createElement("span");
-		badge.style.width = "9px";
-		badge.style.height = "9px";
+		badge.style.width = "10px";
+		badge.style.height = "10px";
 		badge.style.borderRadius = "50%";
 		badge.style.backgroundColor = s.color;
 		badge.style.flexShrink = "0";
 
 		const nameText = document.createElement("span");
-		nameText.style.fontSize = "10px";
+		nameText.style.fontSize = "11px";
 		nameText.style.fontWeight = "bold";
 		nameText.style.color = "#ffffff";
 		nameText.style.whiteSpace = "nowrap";
@@ -558,20 +558,20 @@ async function onExportPDF() {
 	tableEl.style.width = "100%";
 	tableEl.style.borderCollapse = "collapse";
 	tableEl.style.tableLayout = "fixed";
-	tableEl.style.borderRadius = "6px";
+	tableEl.style.borderRadius = "8px";
 	tableEl.style.overflow = "hidden";
 	tableEl.style.border = "1px solid rgba(255,255,255,0.15)";
 
 	const thead = document.createElement("thead");
 	thead.innerHTML = `
-		<tr style="background-color: #1E293B; color: rgba(255,255,255,0.9); font-size: 10px; text-transform: uppercase; font-weight: 800;">
-			<th style="padding: 4px; width: 17%; border-bottom: 1px solid rgba(255,255,255,0.15); border-right: 1px solid rgba(255,255,255,0.15);">Horários</th>
-			<th style="padding: 4px; width: 13.8%; border-bottom: 1px solid rgba(255,255,255,0.15); border-right: 1px solid rgba(255,255,255,0.15);">Seg</th>
-			<th style="padding: 4px; width: 13.8%; border-bottom: 1px solid rgba(255,255,255,0.15); border-right: 1px solid rgba(255,255,255,0.15);">Ter</th>
-			<th style="padding: 4px; width: 13.8%; border-bottom: 1px solid rgba(255,255,255,0.15); border-right: 1px solid rgba(255,255,255,0.15);">Qua</th>
-			<th style="padding: 4px; width: 13.8%; border-bottom: 1px solid rgba(255,255,255,0.15); border-right: 1px solid rgba(255,255,255,0.15);">Qui</th>
-			<th style="padding: 4px; width: 13.8%; border-bottom: 1px solid rgba(255,255,255,0.15); border-right: 1px solid rgba(255,255,255,0.15);">Sex</th>
-			<th style="padding: 4px; width: 13.8%; border-bottom: 1px solid rgba(255,255,255,0.15);">Sab</th>
+		<tr style="background-color: #1E293B; color: rgba(255,255,255,0.9); font-size: 11px; text-transform: uppercase; font-weight: 800;">
+			<th style="padding: 6px; width: 13%; border-bottom: 1px solid rgba(255,255,255,0.15); border-right: 1px solid rgba(255,255,255,0.15);">Horários</th>
+			<th style="padding: 6px; width: 14.5%; border-bottom: 1px solid rgba(255,255,255,0.15); border-right: 1px solid rgba(255,255,255,0.15);">Seg</th>
+			<th style="padding: 6px; width: 14.5%; border-bottom: 1px solid rgba(255,255,255,0.15); border-right: 1px solid rgba(255,255,255,0.15);">Ter</th>
+			<th style="padding: 6px; width: 14.5%; border-bottom: 1px solid rgba(255,255,255,0.15); border-right: 1px solid rgba(255,255,255,0.15);">Qua</th>
+			<th style="padding: 6px; width: 14.5%; border-bottom: 1px solid rgba(255,255,255,0.15); border-right: 1px solid rgba(255,255,255,0.15);">Qui</th>
+			<th style="padding: 6px; width: 14.5%; border-bottom: 1px solid rgba(255,255,255,0.15); border-right: 1px solid rgba(255,255,255,0.15);">Sex</th>
+			<th style="padding: 6px; width: 14.5%; border-bottom: 1px solid rgba(255,255,255,0.15);">Sab</th>
 		</tr>
 	`;
 	tableEl.appendChild(thead);
@@ -584,8 +584,8 @@ async function onExportPDF() {
 			const tr = document.createElement("tr");
 
 			const tdHorario = document.createElement("td");
-			tdHorario.style.padding = "2px 4px";
-			tdHorario.style.fontSize = "9px";
+			tdHorario.style.padding = "3px 4px";
+			tdHorario.style.fontSize = "10px";
 			tdHorario.style.fontWeight = "bold";
 			tdHorario.style.color = "rgba(255,255,255,0.85)";
 			tdHorario.style.backgroundColor = "#1E293B";
@@ -602,11 +602,11 @@ async function onExportPDF() {
 				const turnoChar = turno === 1 ? "M" : turno === 2 ? "T" : "N";
 				const cellId = `${j}${turnoChar}${i}`;
 				const td = document.createElement("td");
-				td.style.padding = "2px";
+				td.style.padding = "3px 4px";
 				td.style.borderBottom = "1px solid rgba(255,255,255,0.08)";
 				if (j < 7) td.style.borderRight = "1px solid rgba(255,255,255,0.08)";
 				td.style.backgroundColor = "#0F172A";
-				td.style.height = "18px";
+				td.style.height = "22px";
 				td.style.boxSizing = "border-box";
 
 				const sub = occMap.get(cellId);
@@ -614,10 +614,10 @@ async function onExportPDF() {
 					td.style.backgroundColor = sub.color;
 					td.style.color = "#ffffff";
 					td.style.fontWeight = "bold";
-					td.style.fontSize = "9px";
+					td.style.fontSize = "10px";
 					td.style.textAlign = "center";
 					td.style.verticalAlign = "middle";
-					td.style.lineHeight = "1.05";
+					td.style.lineHeight = "1.1";
 					td.style.wordBreak = "break-word";
 					td.style.textShadow = "0 1px 2px rgba(0,0,0,0.8)";
 					td.textContent = sub.name;
