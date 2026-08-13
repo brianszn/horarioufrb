@@ -479,53 +479,69 @@ async function onExportPDF() {
 		return;
 	}
 
-	if (typeof html2pdf === "undefined") {
-		setMessage("Biblioteca de PDF indisponível no momento.", "error");
-		return;
-	}
+	setMessage("Gerando PDF da grade...", "info");
 
-	setMessage("Gerando PDF compacto...", "info");
+	const overlay = document.createElement("div");
+	overlay.id = "pdf_export_overlay";
+	overlay.style.position = "fixed";
+	overlay.style.top = "0";
+	overlay.style.left = "0";
+	overlay.style.width = "100vw";
+	overlay.style.height = "100vh";
+	overlay.style.zIndex = "999999";
+	overlay.style.backgroundColor = "#070B14";
+	overlay.style.overflow = "auto";
+	overlay.style.padding = "20px";
+	overlay.style.boxSizing = "border-box";
+	overlay.style.display = "flex";
+	overlay.style.justifyContent = "center";
+	overlay.style.alignItems = "flex-start";
 
-	// Container compacto exclusivo para renderização do PDF
-	const pdfWrapper = document.createElement("div");
-	pdfWrapper.style.width = "780px";
-	pdfWrapper.style.padding = "18px";
-	pdfWrapper.style.backgroundColor = "#0B1220";
-	pdfWrapper.style.color = "#ffffff";
-	pdfWrapper.style.fontFamily = "system-ui, -apple-system, Segoe UI, Roboto, sans-serif";
-	pdfWrapper.style.boxSizing = "border-box";
+	const card = document.createElement("div");
+	card.style.width = "920px";
+	card.style.backgroundColor = "#0F172A";
+	card.style.color = "#ffffff";
+	card.style.padding = "20px";
+	card.style.borderRadius = "14px";
+	card.style.border = "1px solid rgba(255,255,255,0.15)";
+	card.style.fontFamily = "ui-sans-serif, system-ui, -apple-system, sans-serif";
 
-	// Título do PDF
-	const titleEl = document.createElement("h2");
-	titleEl.textContent = "Horários UFRB - Grade Horária";
-	titleEl.style.margin = "0 0 2px 0";
-	titleEl.style.fontSize = "18px";
-	titleEl.style.color = "#ffffff";
-	pdfWrapper.appendChild(titleEl);
+	const header = document.createElement("div");
+	header.style.marginBottom = "14px";
+	header.style.borderBottom = "1px solid rgba(255,255,255,0.15)";
+	header.style.paddingBottom = "8px";
+	header.innerHTML = `
+		<h1 style="margin:0; font-size:22px; color:#ffffff; font-weight:800;">HORÁRIOS UFRB</h1>
+		<p style="margin:4px 0 0 0; font-size:12px; color:rgba(255,255,255,0.65);">
+			Grade Semestral de Horários • Emitido em ${new Date().toLocaleDateString("pt-BR")}
+		</p>
+	`;
+	card.appendChild(header);
 
-	const subTitleEl = document.createElement("p");
-	subTitleEl.textContent = `Matérias cadastradas • Gerado em ${new Date().toLocaleDateString("pt-BR")}`;
-	subTitleEl.style.margin = "0 0 12px 0";
-	subTitleEl.style.fontSize = "11px";
-	subTitleEl.style.color = "rgba(255,255,255,0.65)";
-	pdfWrapper.appendChild(subTitleEl);
+	const legendTitle = document.createElement("div");
+	legendTitle.textContent = "MATÉRIAS CADASTRADAS";
+	legendTitle.style.fontSize = "11px";
+	legendTitle.style.fontWeight = "bold";
+	legendTitle.style.letterSpacing = "0.05em";
+	legendTitle.style.color = "rgba(255,255,255,0.6)";
+	legendTitle.style.marginBottom = "6px";
+	card.appendChild(legendTitle);
 
-	// Legenda Compacta de Matérias
-	const legendContainer = document.createElement("div");
-	legendContainer.style.display = "grid";
-	legendContainer.style.gridTemplateColumns = "repeat(3, 1fr)";
-	legendContainer.style.gap = "6px";
-	legendContainer.style.marginBottom = "12px";
+	const legendGrid = document.createElement("div");
+	legendGrid.style.display = "grid";
+	legendGrid.style.gridTemplateColumns = "repeat(3, 1fr)";
+	legendGrid.style.gap = "6px";
+	legendGrid.style.marginBottom = "16px";
 
 	for (const s of subjects) {
 		const item = document.createElement("div");
 		item.style.display = "flex";
 		item.style.alignItems = "center";
-		item.style.gap = "6px";
-		item.style.padding = "4px 8px";
-		item.style.backgroundColor = "#121C2E";
-		item.style.border = "1px solid rgba(255,255,255,0.12)";
+		item.style.gap = "8px";
+		item.style.padding = "5px 8px";
+		item.style.backgroundColor = "#1E293B";
 		item.style.borderRadius = "6px";
+		item.style.border = "1px solid rgba(255,255,255,0.1)";
 
 		const badge = document.createElement("span");
 		badge.style.width = "10px";
@@ -534,54 +550,51 @@ async function onExportPDF() {
 		badge.style.backgroundColor = s.color;
 		badge.style.flexShrink = "0";
 
-		const text = document.createElement("span");
-		text.style.fontSize = "11px";
-		text.style.fontWeight = "bold";
-		text.style.color = "#ffffff";
-		text.style.whiteSpace = "nowrap";
-		text.style.overflow = "hidden";
-		text.style.textOverflow = "ellipsis";
-		text.textContent = `${s.name} (${s.code})`;
+		const nameText = document.createElement("span");
+		nameText.style.fontSize = "11px";
+		nameText.style.fontWeight = "bold";
+		nameText.style.color = "#ffffff";
+		nameText.style.whiteSpace = "nowrap";
+		nameText.style.overflow = "hidden";
+		nameText.style.textOverflow = "ellipsis";
+		nameText.textContent = `${s.name} (${s.code})`;
 
 		item.appendChild(badge);
-		item.appendChild(text);
-		legendContainer.appendChild(item);
+		item.appendChild(nameText);
+		legendGrid.appendChild(item);
 	}
-	pdfWrapper.appendChild(legendContainer);
+	card.appendChild(legendGrid);
 
-	// Tabela compacta com cores sólidas e vívidas
-	const tableContainer = document.createElement("div");
-	tableContainer.style.borderRadius = "8px";
-	tableContainer.style.overflow = "hidden";
-	tableContainer.style.border = "1px solid rgba(255,255,255,0.15)";
-	tableContainer.style.backgroundColor = "#0F172A";
-
-	const tableClone = document.createElement("table");
-	tableClone.style.width = "100%";
-	tableClone.style.borderCollapse = "collapse";
-	tableClone.style.tableLayout = "fixed";
-
-	const thead = document.createElement("thead");
-	thead.innerHTML = `
-		<tr style="background-color: #1E293B; color: #ffffff; font-size: 11px; text-transform: uppercase;">
-			<th style="padding: 6px 4px; width: 19%; border-bottom: 1px solid rgba(255,255,255,0.15); border-right: 1px solid rgba(255,255,255,0.15);">Horários</th>
-			<th style="padding: 6px 4px; width: 13.5%; border-bottom: 1px solid rgba(255,255,255,0.15); border-right: 1px solid rgba(255,255,255,0.15);">Seg</th>
-			<th style="padding: 6px 4px; width: 13.5%; border-bottom: 1px solid rgba(255,255,255,0.15); border-right: 1px solid rgba(255,255,255,0.15);">Ter</th>
-			<th style="padding: 6px 4px; width: 13.5%; border-bottom: 1px solid rgba(255,255,255,0.15); border-right: 1px solid rgba(255,255,255,0.15);">Qua</th>
-			<th style="padding: 6px 4px; width: 13.5%; border-bottom: 1px solid rgba(255,255,255,0.15); border-right: 1px solid rgba(255,255,255,0.15);">Qui</th>
-			<th style="padding: 6px 4px; width: 13.5%; border-bottom: 1px solid rgba(255,255,255,0.15); border-right: 1px solid rgba(255,255,255,0.15);">Sex</th>
-			<th style="padding: 6px 4px; width: 13.5%; border-bottom: 1px solid rgba(255,255,255,0.15);">Sab</th>
-		</tr>
-	`;
-	tableClone.appendChild(thead);
-
-	const tbody = document.createElement("tbody");
 	const occMap = new Map();
 	for (const s of subjects) {
 		for (const cellId of s.cells) {
 			occMap.set(cellId, s);
 		}
 	}
+
+	const tableEl = document.createElement("table");
+	tableEl.style.width = "100%";
+	tableEl.style.borderCollapse = "collapse";
+	tableEl.style.tableLayout = "fixed";
+	tableEl.style.borderRadius = "8px";
+	tableEl.style.overflow = "hidden";
+	tableEl.style.border = "1px solid rgba(255,255,255,0.15)";
+
+	const thead = document.createElement("thead");
+	thead.innerHTML = `
+		<tr style="background-color: #1E293B; color: rgba(255,255,255,0.9); font-size: 11px; text-transform: uppercase; font-weight: 800;">
+			<th style="padding: 6px 4px; width: 18%; border-bottom: 1px solid rgba(255,255,255,0.15); border-right: 1px solid rgba(255,255,255,0.15);">Horários</th>
+			<th style="padding: 6px 4px; width: 13.6%; border-bottom: 1px solid rgba(255,255,255,0.15); border-right: 1px solid rgba(255,255,255,0.15);">Seg</th>
+			<th style="padding: 6px 4px; width: 13.6%; border-bottom: 1px solid rgba(255,255,255,0.15); border-right: 1px solid rgba(255,255,255,0.15);">Ter</th>
+			<th style="padding: 6px 4px; width: 13.6%; border-bottom: 1px solid rgba(255,255,255,0.15); border-right: 1px solid rgba(255,255,255,0.15);">Qua</th>
+			<th style="padding: 6px 4px; width: 13.6%; border-bottom: 1px solid rgba(255,255,255,0.15); border-right: 1px solid rgba(255,255,255,0.15);">Qui</th>
+			<th style="padding: 6px 4px; width: 13.6%; border-bottom: 1px solid rgba(255,255,255,0.15); border-right: 1px solid rgba(255,255,255,0.15);">Sex</th>
+			<th style="padding: 6px 4px; width: 13.6%; border-bottom: 1px solid rgba(255,255,255,0.15);">Sab</th>
+		</tr>
+	`;
+	tableEl.appendChild(thead);
+
+	const tbody = document.createElement("tbody");
 
 	for (let turno = 1; turno <= 3; turno++) {
 		const maxRow = 7 - turno;
@@ -594,7 +607,7 @@ async function onExportPDF() {
 			tdHorario.style.fontWeight = "bold";
 			tdHorario.style.color = "rgba(255,255,255,0.85)";
 			tdHorario.style.backgroundColor = "#1E293B";
-			tdHorario.style.borderBottom = "1px solid rgba(255,255,255,0.08)";
+			tdHorario.style.borderBottom = "1px solid rgba(255,255,255,0.1)";
 			tdHorario.style.borderRight = "1px solid rgba(255,255,255,0.15)";
 			tdHorario.style.textAlign = "center";
 
@@ -607,25 +620,27 @@ async function onExportPDF() {
 				const turnoChar = turno === 1 ? "M" : turno === 2 ? "T" : "N";
 				const cellId = `${j}${turnoChar}${i}`;
 				const td = document.createElement("td");
-				td.style.padding = "2px";
-				td.style.borderBottom = "1px solid rgba(255,255,255,0.08)";
-				if (j < 7) td.style.borderRight = "1px solid rgba(255,255,255,0.08)";
-
-				const block = document.createElement("div");
-				block.style.width = "100%";
-				block.style.height = "20px";
-				block.style.borderRadius = "4px";
+				td.style.padding = "3px 2px";
+				td.style.borderBottom = "1px solid rgba(255,255,255,0.1)";
+				if (j < 7) td.style.borderRight = "1px solid rgba(255,255,255,0.1)";
+				td.style.backgroundColor = "#0F172A";
+				td.style.height = "24px";
+				td.style.boxSizing = "border-box";
 
 				const sub = occMap.get(cellId);
 				if (sub) {
-					// Cor 100% SÓLIDA e SÁTURADA (sem desbotado)
-					block.style.backgroundColor = sub.color;
-					block.style.boxShadow = "inset 0 0 0 1px rgba(255,255,255,0.25)";
-				} else {
-					block.style.backgroundColor = "rgba(255,255,255,0.02)";
+					td.style.backgroundColor = sub.color;
+					td.style.color = "#ffffff";
+					td.style.fontWeight = "bold";
+					td.style.fontSize = "10px";
+					td.style.textAlign = "center";
+					td.style.verticalAlign = "middle";
+					td.style.lineHeight = "1.1";
+					td.style.wordBreak = "break-word";
+					td.style.textShadow = "0 1px 2px rgba(0,0,0,0.8)";
+					td.textContent = sub.name;
 				}
 
-				td.appendChild(block);
 				tr.appendChild(td);
 			}
 
@@ -633,39 +648,48 @@ async function onExportPDF() {
 		}
 	}
 
-	tableClone.appendChild(tbody);
-	tableContainer.appendChild(tableClone);
-	pdfWrapper.appendChild(tableContainer);
+	tableEl.appendChild(tbody);
+	card.appendChild(tableEl);
 
-	pdfWrapper.style.position = "absolute";
-	pdfWrapper.style.left = "-9999px";
-	pdfWrapper.style.top = "-9999px";
-	document.body.appendChild(pdfWrapper);
+	const footer = document.createElement("div");
+	footer.style.marginTop = "12px";
+	footer.style.fontSize = "10px";
+	footer.style.color = "rgba(255,255,255,0.5)";
+	footer.style.textAlign = "right";
+	footer.textContent = "Horários UFRB • Engenharia de Computação";
+	card.appendChild(footer);
+
+	overlay.appendChild(card);
+	document.body.appendChild(overlay);
 
 	try {
-		const opt = {
-			margin: [6, 6, 6, 6],
-			filename: `grade_horarios_ufrb_${new Date().toISOString().slice(0, 10)}.pdf`,
-			image: { type: "jpeg", quality: 0.98 },
-			html2canvas: {
-				scale: 2,
-				useCORS: true,
-				backgroundColor: "#0B1220",
-				logging: false,
-			},
-			jsPDF: { unit: "mm", format: "a4", orientation: "portrait" },
-		};
+		if (typeof html2pdf !== "undefined") {
+			const opt = {
+				margin: [6, 6, 6, 6],
+				filename: `grade_horarios_ufrb_${new Date().toISOString().slice(0, 10)}.pdf`,
+				image: { type: "jpeg", quality: 0.98 },
+				html2canvas: {
+					scale: 2,
+					useCORS: true,
+					backgroundColor: "#070B14",
+					logging: false,
+				},
+				jsPDF: { unit: "mm", format: "a4", orientation: "landscape" },
+			};
 
-		await html2pdf().set(opt).from(pdfWrapper).save();
-
-		if (document.body.contains(pdfWrapper)) {
-			document.body.removeChild(pdfWrapper);
+			await html2pdf().set(opt).from(card).save();
+		} else {
+			window.print();
 		}
-		setMessage("PDF compacto gerado com sucesso!", "ok");
+
+		if (document.body.contains(overlay)) {
+			document.body.removeChild(overlay);
+		}
+		setMessage("PDF gerado e baixado com sucesso!", "ok");
 	} catch (err) {
 		console.error("Erro no PDF:", err);
-		if (document.body.contains(pdfWrapper)) {
-			document.body.removeChild(pdfWrapper);
+		if (document.body.contains(overlay)) {
+			document.body.removeChild(overlay);
 		}
 		setMessage("Erro ao gerar o arquivo PDF.", "error");
 	}
