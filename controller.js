@@ -484,38 +484,189 @@ async function onExportPDF() {
 		return;
 	}
 
-	setMessage("Gerando PDF da interface...", "info");
+	setMessage("Gerando PDF compacto...", "info");
 
-	const appEl = document.querySelector(".app");
-	const inputsEl = document.querySelector(".inputs");
+	// Container compacto exclusivo para renderização do PDF
+	const pdfWrapper = document.createElement("div");
+	pdfWrapper.style.width = "780px";
+	pdfWrapper.style.padding = "18px";
+	pdfWrapper.style.backgroundColor = "#0B1220";
+	pdfWrapper.style.color = "#ffffff";
+	pdfWrapper.style.fontFamily = "system-ui, -apple-system, Segoe UI, Roboto, sans-serif";
+	pdfWrapper.style.boxSizing = "border-box";
+
+	// Título do PDF
+	const titleEl = document.createElement("h2");
+	titleEl.textContent = "Horários UFRB - Grade Horária";
+	titleEl.style.margin = "0 0 2px 0";
+	titleEl.style.fontSize = "18px";
+	titleEl.style.color = "#ffffff";
+	pdfWrapper.appendChild(titleEl);
+
+	const subTitleEl = document.createElement("p");
+	subTitleEl.textContent = `Matérias cadastradas • Gerado em ${new Date().toLocaleDateString("pt-BR")}`;
+	subTitleEl.style.margin = "0 0 12px 0";
+	subTitleEl.style.fontSize = "11px";
+	subTitleEl.style.color = "rgba(255,255,255,0.65)";
+	pdfWrapper.appendChild(subTitleEl);
+
+	// Legenda Compacta de Matérias
+	const legendContainer = document.createElement("div");
+	legendContainer.style.display = "grid";
+	legendContainer.style.gridTemplateColumns = "repeat(3, 1fr)";
+	legendContainer.style.gap = "6px";
+	legendContainer.style.marginBottom = "12px";
+
+	for (const s of subjects) {
+		const item = document.createElement("div");
+		item.style.display = "flex";
+		item.style.alignItems = "center";
+		item.style.gap = "6px";
+		item.style.padding = "4px 8px";
+		item.style.backgroundColor = "#121C2E";
+		item.style.border = "1px solid rgba(255,255,255,0.12)";
+		item.style.borderRadius = "6px";
+
+		const badge = document.createElement("span");
+		badge.style.width = "10px";
+		badge.style.height = "10px";
+		badge.style.borderRadius = "50%";
+		badge.style.backgroundColor = s.color;
+		badge.style.flexShrink = "0";
+
+		const text = document.createElement("span");
+		text.style.fontSize = "11px";
+		text.style.fontWeight = "bold";
+		text.style.color = "#ffffff";
+		text.style.whiteSpace = "nowrap";
+		text.style.overflow = "hidden";
+		text.style.textOverflow = "ellipsis";
+		text.textContent = `${s.name} (${s.code})`;
+
+		item.appendChild(badge);
+		item.appendChild(text);
+		legendContainer.appendChild(item);
+	}
+	pdfWrapper.appendChild(legendContainer);
+
+	// Tabela compacta com cores sólidas e vívidas
+	const tableContainer = document.createElement("div");
+	tableContainer.style.borderRadius = "8px";
+	tableContainer.style.overflow = "hidden";
+	tableContainer.style.border = "1px solid rgba(255,255,255,0.15)";
+	tableContainer.style.backgroundColor = "#0F172A";
+
+	const tableClone = document.createElement("table");
+	tableClone.style.width = "100%";
+	tableClone.style.borderCollapse = "collapse";
+	tableClone.style.tableLayout = "fixed";
+
+	const thead = document.createElement("thead");
+	thead.innerHTML = `
+		<tr style="background-color: #1E293B; color: #ffffff; font-size: 11px; text-transform: uppercase;">
+			<th style="padding: 6px 4px; width: 19%; border-bottom: 1px solid rgba(255,255,255,0.15); border-right: 1px solid rgba(255,255,255,0.15);">Horários</th>
+			<th style="padding: 6px 4px; width: 13.5%; border-bottom: 1px solid rgba(255,255,255,0.15); border-right: 1px solid rgba(255,255,255,0.15);">Seg</th>
+			<th style="padding: 6px 4px; width: 13.5%; border-bottom: 1px solid rgba(255,255,255,0.15); border-right: 1px solid rgba(255,255,255,0.15);">Ter</th>
+			<th style="padding: 6px 4px; width: 13.5%; border-bottom: 1px solid rgba(255,255,255,0.15); border-right: 1px solid rgba(255,255,255,0.15);">Qua</th>
+			<th style="padding: 6px 4px; width: 13.5%; border-bottom: 1px solid rgba(255,255,255,0.15); border-right: 1px solid rgba(255,255,255,0.15);">Qui</th>
+			<th style="padding: 6px 4px; width: 13.5%; border-bottom: 1px solid rgba(255,255,255,0.15); border-right: 1px solid rgba(255,255,255,0.15);">Sex</th>
+			<th style="padding: 6px 4px; width: 13.5%; border-bottom: 1px solid rgba(255,255,255,0.15);">Sab</th>
+		</tr>
+	`;
+	tableClone.appendChild(thead);
+
+	const tbody = document.createElement("tbody");
+	const occMap = new Map();
+	for (const s of subjects) {
+		for (const cellId of s.cells) {
+			occMap.set(cellId, s);
+		}
+	}
+
+	for (let turno = 1; turno <= 3; turno++) {
+		const maxRow = 7 - turno;
+		for (let i = 1; i <= maxRow; i++) {
+			const tr = document.createElement("tr");
+
+			const tdHorario = document.createElement("td");
+			tdHorario.style.padding = "4px 2px";
+			tdHorario.style.fontSize = "10px";
+			tdHorario.style.fontWeight = "bold";
+			tdHorario.style.color = "rgba(255,255,255,0.85)";
+			tdHorario.style.backgroundColor = "#1E293B";
+			tdHorario.style.borderBottom = "1px solid rgba(255,255,255,0.08)";
+			tdHorario.style.borderRight = "1px solid rgba(255,255,255,0.15)";
+			tdHorario.style.textAlign = "center";
+
+			const hStart = i + 6 + (turno === 2 ? 6 : turno === 3 ? 11 : 0);
+			const min = turno === 3 ? "30" : "00";
+			tdHorario.textContent = `${hStart}:${min} - ${hStart + 1}:${min}`;
+			tr.appendChild(tdHorario);
+
+			for (let j = 2; j <= 7; j++) {
+				const turnoChar = turno === 1 ? "M" : turno === 2 ? "T" : "N";
+				const cellId = `${j}${turnoChar}${i}`;
+				const td = document.createElement("td");
+				td.style.padding = "2px";
+				td.style.borderBottom = "1px solid rgba(255,255,255,0.08)";
+				if (j < 7) td.style.borderRight = "1px solid rgba(255,255,255,0.08)";
+
+				const block = document.createElement("div");
+				block.style.width = "100%";
+				block.style.height = "20px";
+				block.style.borderRadius = "4px";
+
+				const sub = occMap.get(cellId);
+				if (sub) {
+					// Cor 100% SÓLIDA e SÁTURADA (sem desbotado)
+					block.style.backgroundColor = sub.color;
+					block.style.boxShadow = "inset 0 0 0 1px rgba(255,255,255,0.25)";
+				} else {
+					block.style.backgroundColor = "rgba(255,255,255,0.02)";
+				}
+
+				td.appendChild(block);
+				tr.appendChild(td);
+			}
+
+			tbody.appendChild(tr);
+		}
+	}
+
+	tableClone.appendChild(tbody);
+	tableContainer.appendChild(tableClone);
+	pdfWrapper.appendChild(tableContainer);
+
+	pdfWrapper.style.position = "absolute";
+	pdfWrapper.style.left = "-9999px";
+	pdfWrapper.style.top = "-9999px";
+	document.body.appendChild(pdfWrapper);
 
 	try {
-		// Oculta temporariamente os formulários de entrada para o PDF focar na lista e na tabela
-		if (inputsEl) inputsEl.style.display = "none";
-		clearPreview();
-
 		const opt = {
-			margin: [8, 8, 8, 8],
+			margin: [6, 6, 6, 6],
 			filename: `grade_horarios_ufrb_${new Date().toISOString().slice(0, 10)}.pdf`,
 			image: { type: "jpeg", quality: 0.98 },
 			html2canvas: {
 				scale: 2,
 				useCORS: true,
-				backgroundColor: "#070B14",
+				backgroundColor: "#0B1220",
 				logging: false,
 			},
-			jsPDF: { unit: "mm", format: "a4", orientation: "landscape" },
+			jsPDF: { unit: "mm", format: "a4", orientation: "portrait" },
 		};
 
-		await html2pdf().set(opt).from(appEl).save();
+		await html2pdf().set(opt).from(pdfWrapper).save();
 
-		if (inputsEl) inputsEl.style.display = "";
-		onDraftChange();
-		setMessage("PDF gerado e baixado com sucesso!", "ok");
+		if (document.body.contains(pdfWrapper)) {
+			document.body.removeChild(pdfWrapper);
+		}
+		setMessage("PDF compacto gerado com sucesso!", "ok");
 	} catch (err) {
 		console.error("Erro no PDF:", err);
-		if (inputsEl) inputsEl.style.display = "";
-		onDraftChange();
+		if (document.body.contains(pdfWrapper)) {
+			document.body.removeChild(pdfWrapper);
+		}
 		setMessage("Erro ao gerar o arquivo PDF.", "error");
 	}
 }
