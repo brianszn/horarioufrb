@@ -479,7 +479,7 @@ async function onExportPDF() {
 		return;
 	}
 
-	setMessage("Gerando PDF da grade...", "info");
+	setMessage("Gerando PDF em 1 página (Paisagem)...", "info");
 
 	const overlay = document.createElement("div");
 	overlay.id = "pdf_export_overlay";
@@ -498,60 +498,51 @@ async function onExportPDF() {
 	overlay.style.alignItems = "flex-start";
 
 	const card = document.createElement("div");
-	card.style.width = "920px";
+	card.style.width = "900px";
 	card.style.backgroundColor = "#0F172A";
 	card.style.color = "#ffffff";
-	card.style.padding = "20px";
-	card.style.borderRadius = "14px";
+	card.style.padding = "16px 20px";
+	card.style.borderRadius = "12px";
 	card.style.border = "1px solid rgba(255,255,255,0.15)";
 	card.style.fontFamily = "ui-sans-serif, system-ui, -apple-system, sans-serif";
 
 	const header = document.createElement("div");
-	header.style.marginBottom = "14px";
+	header.style.marginBottom = "10px";
 	header.style.borderBottom = "1px solid rgba(255,255,255,0.15)";
-	header.style.paddingBottom = "8px";
+	header.style.paddingBottom = "6px";
 	header.innerHTML = `
-		<h1 style="margin:0; font-size:22px; color:#ffffff; font-weight:800;">HORÁRIOS UFRB</h1>
-		<p style="margin:4px 0 0 0; font-size:12px; color:rgba(255,255,255,0.65);">
-			Grade Semestral de Horários • Emitido em ${new Date().toLocaleDateString("pt-BR")}
-		</p>
+		<div style="display:flex; justify-content:space-between; align-items:center;">
+			<h1 style="margin:0; font-size:20px; color:#ffffff; font-weight:800;">HORÁRIOS UFRB</h1>
+			<span style="font-size:11px; color:rgba(255,255,255,0.65);">Grade Semestral • Emitido em ${new Date().toLocaleDateString("pt-BR")}</span>
+		</div>
 	`;
 	card.appendChild(header);
-
-	const legendTitle = document.createElement("div");
-	legendTitle.textContent = "MATÉRIAS CADASTRADAS";
-	legendTitle.style.fontSize = "11px";
-	legendTitle.style.fontWeight = "bold";
-	legendTitle.style.letterSpacing = "0.05em";
-	legendTitle.style.color = "rgba(255,255,255,0.6)";
-	legendTitle.style.marginBottom = "6px";
-	card.appendChild(legendTitle);
 
 	const legendGrid = document.createElement("div");
 	legendGrid.style.display = "grid";
 	legendGrid.style.gridTemplateColumns = "repeat(3, 1fr)";
-	legendGrid.style.gap = "6px";
-	legendGrid.style.marginBottom = "16px";
+	legendGrid.style.gap = "4px 8px";
+	legendGrid.style.marginBottom = "10px";
 
 	for (const s of subjects) {
 		const item = document.createElement("div");
 		item.style.display = "flex";
 		item.style.alignItems = "center";
-		item.style.gap = "8px";
-		item.style.padding = "5px 8px";
+		item.style.gap = "6px";
+		item.style.padding = "3px 6px";
 		item.style.backgroundColor = "#1E293B";
-		item.style.borderRadius = "6px";
+		item.style.borderRadius = "5px";
 		item.style.border = "1px solid rgba(255,255,255,0.1)";
 
 		const badge = document.createElement("span");
-		badge.style.width = "10px";
-		badge.style.height = "10px";
+		badge.style.width = "9px";
+		badge.style.height = "9px";
 		badge.style.borderRadius = "50%";
 		badge.style.backgroundColor = s.color;
 		badge.style.flexShrink = "0";
 
 		const nameText = document.createElement("span");
-		nameText.style.fontSize = "11px";
+		nameText.style.fontSize = "10px";
 		nameText.style.fontWeight = "bold";
 		nameText.style.color = "#ffffff";
 		nameText.style.whiteSpace = "nowrap";
@@ -576,20 +567,20 @@ async function onExportPDF() {
 	tableEl.style.width = "100%";
 	tableEl.style.borderCollapse = "collapse";
 	tableEl.style.tableLayout = "fixed";
-	tableEl.style.borderRadius = "8px";
+	tableEl.style.borderRadius = "6px";
 	tableEl.style.overflow = "hidden";
 	tableEl.style.border = "1px solid rgba(255,255,255,0.15)";
 
 	const thead = document.createElement("thead");
 	thead.innerHTML = `
-		<tr style="background-color: #1E293B; color: rgba(255,255,255,0.9); font-size: 11px; text-transform: uppercase; font-weight: 800;">
-			<th style="padding: 6px 4px; width: 18%; border-bottom: 1px solid rgba(255,255,255,0.15); border-right: 1px solid rgba(255,255,255,0.15);">Horários</th>
-			<th style="padding: 6px 4px; width: 13.6%; border-bottom: 1px solid rgba(255,255,255,0.15); border-right: 1px solid rgba(255,255,255,0.15);">Seg</th>
-			<th style="padding: 6px 4px; width: 13.6%; border-bottom: 1px solid rgba(255,255,255,0.15); border-right: 1px solid rgba(255,255,255,0.15);">Ter</th>
-			<th style="padding: 6px 4px; width: 13.6%; border-bottom: 1px solid rgba(255,255,255,0.15); border-right: 1px solid rgba(255,255,255,0.15);">Qua</th>
-			<th style="padding: 6px 4px; width: 13.6%; border-bottom: 1px solid rgba(255,255,255,0.15); border-right: 1px solid rgba(255,255,255,0.15);">Qui</th>
-			<th style="padding: 6px 4px; width: 13.6%; border-bottom: 1px solid rgba(255,255,255,0.15); border-right: 1px solid rgba(255,255,255,0.15);">Sex</th>
-			<th style="padding: 6px 4px; width: 13.6%; border-bottom: 1px solid rgba(255,255,255,0.15);">Sab</th>
+		<tr style="background-color: #1E293B; color: rgba(255,255,255,0.9); font-size: 10px; text-transform: uppercase; font-weight: 800;">
+			<th style="padding: 4px; width: 17%; border-bottom: 1px solid rgba(255,255,255,0.15); border-right: 1px solid rgba(255,255,255,0.15);">Horários</th>
+			<th style="padding: 4px; width: 13.8%; border-bottom: 1px solid rgba(255,255,255,0.15); border-right: 1px solid rgba(255,255,255,0.15);">Seg</th>
+			<th style="padding: 4px; width: 13.8%; border-bottom: 1px solid rgba(255,255,255,0.15); border-right: 1px solid rgba(255,255,255,0.15);">Ter</th>
+			<th style="padding: 4px; width: 13.8%; border-bottom: 1px solid rgba(255,255,255,0.15); border-right: 1px solid rgba(255,255,255,0.15);">Qua</th>
+			<th style="padding: 4px; width: 13.8%; border-bottom: 1px solid rgba(255,255,255,0.15); border-right: 1px solid rgba(255,255,255,0.15);">Qui</th>
+			<th style="padding: 4px; width: 13.8%; border-bottom: 1px solid rgba(255,255,255,0.15); border-right: 1px solid rgba(255,255,255,0.15);">Sex</th>
+			<th style="padding: 4px; width: 13.8%; border-bottom: 1px solid rgba(255,255,255,0.15);">Sab</th>
 		</tr>
 	`;
 	tableEl.appendChild(thead);
@@ -602,29 +593,29 @@ async function onExportPDF() {
 			const tr = document.createElement("tr");
 
 			const tdHorario = document.createElement("td");
-			tdHorario.style.padding = "4px 2px";
-			tdHorario.style.fontSize = "10px";
+			tdHorario.style.padding = "2px 4px";
+			tdHorario.style.fontSize = "9px";
 			tdHorario.style.fontWeight = "bold";
 			tdHorario.style.color = "rgba(255,255,255,0.85)";
 			tdHorario.style.backgroundColor = "#1E293B";
-			tdHorario.style.borderBottom = "1px solid rgba(255,255,255,0.1)";
+			tdHorario.style.borderBottom = "1px solid rgba(255,255,255,0.08)";
 			tdHorario.style.borderRight = "1px solid rgba(255,255,255,0.15)";
 			tdHorario.style.textAlign = "center";
 
 			const hStart = i + 6 + (turno === 2 ? 6 : turno === 3 ? 11 : 0);
 			const min = turno === 3 ? "30" : "00";
-			tdHorario.textContent = `${hStart}:${min} - ${hStart + 1}:${min}`;
+			tdHorario.textContent = `${hStart}:${min}-${hStart + 1}:${min}`;
 			tr.appendChild(tdHorario);
 
 			for (let j = 2; j <= 7; j++) {
 				const turnoChar = turno === 1 ? "M" : turno === 2 ? "T" : "N";
 				const cellId = `${j}${turnoChar}${i}`;
 				const td = document.createElement("td");
-				td.style.padding = "3px 2px";
-				td.style.borderBottom = "1px solid rgba(255,255,255,0.1)";
-				if (j < 7) td.style.borderRight = "1px solid rgba(255,255,255,0.1)";
+				td.style.padding = "2px";
+				td.style.borderBottom = "1px solid rgba(255,255,255,0.08)";
+				if (j < 7) td.style.borderRight = "1px solid rgba(255,255,255,0.08)";
 				td.style.backgroundColor = "#0F172A";
-				td.style.height = "24px";
+				td.style.height = "18px";
 				td.style.boxSizing = "border-box";
 
 				const sub = occMap.get(cellId);
@@ -632,10 +623,10 @@ async function onExportPDF() {
 					td.style.backgroundColor = sub.color;
 					td.style.color = "#ffffff";
 					td.style.fontWeight = "bold";
-					td.style.fontSize = "10px";
+					td.style.fontSize = "9px";
 					td.style.textAlign = "center";
 					td.style.verticalAlign = "middle";
-					td.style.lineHeight = "1.1";
+					td.style.lineHeight = "1.05";
 					td.style.wordBreak = "break-word";
 					td.style.textShadow = "0 1px 2px rgba(0,0,0,0.8)";
 					td.textContent = sub.name;
@@ -651,41 +642,57 @@ async function onExportPDF() {
 	tableEl.appendChild(tbody);
 	card.appendChild(tableEl);
 
-	const footer = document.createElement("div");
-	footer.style.marginTop = "12px";
-	footer.style.fontSize = "10px";
-	footer.style.color = "rgba(255,255,255,0.5)";
-	footer.style.textAlign = "right";
-	footer.textContent = "Horários UFRB • Engenharia de Computação";
-	card.appendChild(footer);
-
 	overlay.appendChild(card);
 	document.body.appendChild(overlay);
 
 	try {
-		if (typeof html2pdf !== "undefined") {
+		const canvas = await html2canvas(card, {
+			scale: 2,
+			useCORS: true,
+			backgroundColor: "#0F172A",
+			logging: false,
+		});
+
+		const imgData = canvas.toDataURL("image/jpeg", 0.98);
+		const jsPDFLib = (window.jspdf && window.jspdf.jsPDF) || window.jsPDF;
+
+		if (jsPDFLib) {
+			const pdf = new jsPDFLib({
+				orientation: "landscape",
+				unit: "mm",
+				format: "a4",
+			});
+
+			const pdfWidth = 297;
+			const pdfHeight = 210;
+			const margin = 8;
+			const maxW = pdfWidth - margin * 2;
+			const maxH = pdfHeight - margin * 2;
+
+			const ratio = Math.min(maxW / canvas.width, maxH / canvas.height);
+			const finalW = canvas.width * ratio;
+			const finalH = canvas.height * ratio;
+
+			const x = (pdfWidth - finalW) / 2;
+			const y = (pdfHeight - finalH) / 2;
+
+			pdf.addImage(imgData, "JPEG", x, y, finalW, finalH);
+			pdf.save(`grade_horarios_ufrb_${new Date().toISOString().slice(0, 10)}.pdf`);
+		} else {
 			const opt = {
 				margin: [6, 6, 6, 6],
 				filename: `grade_horarios_ufrb_${new Date().toISOString().slice(0, 10)}.pdf`,
 				image: { type: "jpeg", quality: 0.98 },
-				html2canvas: {
-					scale: 2,
-					useCORS: true,
-					backgroundColor: "#070B14",
-					logging: false,
-				},
+				html2canvas: { scale: 2, useCORS: true, backgroundColor: "#0F172A" },
 				jsPDF: { unit: "mm", format: "a4", orientation: "landscape" },
 			};
-
 			await html2pdf().set(opt).from(card).save();
-		} else {
-			window.print();
 		}
 
 		if (document.body.contains(overlay)) {
 			document.body.removeChild(overlay);
 		}
-		setMessage("PDF gerado e baixado com sucesso!", "ok");
+		setMessage("PDF em página única (Paisagem) baixado com sucesso!", "ok");
 	} catch (err) {
 		console.error("Erro no PDF:", err);
 		if (document.body.contains(overlay)) {
