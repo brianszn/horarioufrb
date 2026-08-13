@@ -94,33 +94,54 @@ function hexToRgb(hex) {
 	return [(num >> 16) & 255, (num >> 8) & 255, num & 255];
 }
 
+function getHue(hex) {
+	const [r, g, b] = hexToRgb(hex).map((v) => v / 255);
+	const max = Math.max(r, g, b), min = Math.min(r, g, b);
+	let h = 0;
+	if (max !== min) {
+		const d = max - min;
+		switch (max) {
+			case r: h = (g - b) / d + (g < b ? 6 : 0); break;
+			case g: h = (b - r) / d + 2; break;
+			case b: h = (r - g) / d + 4; break;
+		}
+		h /= 6;
+	}
+	return h * 360;
+}
+
 function colorDistance(hex1, hex2) {
+	const h1 = getHue(hex1);
+	const h2 = getHue(hex2);
+	const diff = Math.abs(h1 - h2);
+	const hueDiff = Math.min(diff, 360 - diff);
+	
 	const [r1, g1, b1] = hexToRgb(hex1);
 	const [r2, g2, b2] = hexToRgb(hex2);
-	const dr = r1 - r2;
-	const dg = g1 - g2;
-	const db = b1 - b2;
-	return Math.sqrt(2 * dr * dr + 4 * dg * dg + 3 * db * db);
+	const rgbDiff = Math.sqrt((r1 - r2) ** 2 + (g1 - g2) ** 2 + (b1 - b2) ** 2) / 441.67;
+	
+	// 80% de peso no contraste de Matiz (Hue) para impedir cores da mesma família
+	return (hueDiff / 180) * 0.80 + rgbDiff * 0.20;
 }
 
 function pickColorFor(usedColors, index) {
 	const palette = [
-		"#00C2FF", // Cyan / Azul Elétrico
-		"#FF4D4F", // Vermelho Vivo
-		"#49F17A", // Verde Limão / Neon
-		"#FFB020", // Laranja / Âmbar
-		"#A78BFA", // Roxo / Violeta
-		"#FF5CCB", // Rosa Choque / Magenta
-		"#2DD4BF", // Verde Água / Teal
-		"#FFD400", // Amarelo Ouro
-		"#3B82F6", // Azul Royal
-		"#F97316", // Laranja Vivo
-		"#10B981", // Verde Esmeralda
-		"#EC4899", // Rosa Pink
-		"#8B5CF6", // Roxo Escuro
-		"#84CC16", // Verde Limão Escuro
-		"#06B6D4", // Turquesa
-		"#E11D48", // Vermelho Carmim
+		"#00F0FF", // Cyan Elétrico (180°)
+		"#FF2A4B", // Vermelho Vivo (350°)
+		"#39FF14", // Verde Limão Neon (110°)
+		"#FF6B00", // Laranja Puro (25°)
+		"#9D00FF", // Roxo Intenso (275°)
+		"#FF007F", // Rosa Magenta (330°)
+		"#FFE600", // Amarelo Canário (55°)
+		"#00FFAB", // Verde Mint / Teal (160°)
+		"#1F51FF", // Azul Cobalto (225°)
+		"#E000FF", // Fuchsia / Orquídea (290°)
+		"#FFD000", // Amarelo Ouro (48°)
+		"#00A86B", // Verde Esmeralda (158°)
+		"#6F00FF", // Azul Índigo (266°)
+		"#FF5733", // Coral (10°)
+		"#A3E635", // Lime Green (84°)
+		"#00A3FF", // Azul Celeste (200°)
 	];
 
 	const available = palette.filter((c) => !usedColors.has(c));
@@ -130,7 +151,6 @@ function pickColorFor(usedColors, index) {
 	}
 
 	if (available.length > 0) {
-		// Escolhe a cor disponível que tenha a MAIOR distância visual da cor mais próxima já utilizada
 		let bestColor = available[0];
 		let maxMinDist = -1;
 
@@ -151,9 +171,8 @@ function pickColorFor(usedColors, index) {
 		return bestColor;
 	}
 
-	// Se a paleta esgotar, gera tons HSL usando o Ângulo Áureo (137.5°) para máximo contraste
 	const hue = Math.round((index * 137.5) % 360);
-	return `hsl(${hue}, 85%, 60%)`;
+	return `hsl(${hue}, 95%, 55%)`;
 }
 
 function pickColor() {
@@ -454,7 +473,7 @@ function onClear() {
 	onDraftChange();
 }
 
-function onExportPDF() {
+async function onExportPDF() {
 	if (!subjects.length) {
 		setMessage("Adicione ao menos uma matéria para baixar o PDF.", "error");
 		return;
@@ -465,127 +484,38 @@ function onExportPDF() {
 		return;
 	}
 
-	setMessage("Gerando PDF, aguarde...", "info");
+	setMessage("Gerando PDF da interface...", "info");
 
-	const container = document.createElement("div");
-	container.style.padding = "24px";
-	container.style.backgroundColor = "#0B1220";
-	container.style.color = "#ffffff";
-	container.style.fontFamily = "ui-sans-serif, system-ui, -apple-system, sans-serif";
-	container.style.width = "1050px";
+	const appEl = document.querySelector(".app");
+	const inputsEl = document.querySelector(".inputs");
 
-	const header = document.createElement("div");
-	header.style.marginBottom = "18px";
-	header.style.borderBottom = "2px solid rgba(255,255,255,0.15)";
-	header.style.paddingBottom = "12px";
-	header.innerHTML = `
-		<h1 style="margin: 0; font-size: 26px; color: #ffffff;">Horários UFRB - Grade Horária</h1>
-		<p style="margin: 6px 0 0 0; font-size: 13px; color: rgba(255,255,255,0.7);">
-			Visualização das matérias cadastradas • Gerado em ${new Date().toLocaleDateString("pt-BR")}
-		</p>
-	`;
-	container.appendChild(header);
+	try {
+		// Oculta temporariamente os formulários de entrada para o PDF focar na lista e na tabela
+		if (inputsEl) inputsEl.style.display = "none";
+		clearPreview();
 
-	const legendTitle = document.createElement("h3");
-	legendTitle.textContent = "Matérias Cadastradas";
-	legendTitle.style.fontSize = "15px";
-	legendTitle.style.margin = "0 0 10px 0";
-	legendTitle.style.color = "rgba(255,255,255,0.9)";
-	container.appendChild(legendTitle);
+		const opt = {
+			margin: [8, 8, 8, 8],
+			filename: `grade_horarios_ufrb_${new Date().toISOString().slice(0, 10)}.pdf`,
+			image: { type: "jpeg", quality: 0.98 },
+			html2canvas: {
+				scale: 2,
+				useCORS: true,
+				backgroundColor: "#070B14",
+				logging: false,
+			},
+			jsPDF: { unit: "mm", format: "a4", orientation: "landscape" },
+		};
 
-	const legendList = document.createElement("div");
-	legendList.style.display = "grid";
-	legendList.style.gridTemplateColumns = "repeat(2, 1fr)";
-	legendList.style.gap = "8px";
-	legendList.style.marginBottom = "20px";
+		await html2pdf().set(opt).from(appEl).save();
 
-	for (const s of subjects) {
-		const item = document.createElement("div");
-		item.style.display = "flex";
-		item.style.alignItems = "center";
-		item.style.gap = "10px";
-		item.style.padding = "6px 10px";
-		item.style.backgroundColor = "rgba(255,255,255,0.06)";
-		item.style.borderRadius = "8px";
-		item.style.border = "1px solid rgba(255,255,255,0.1)";
-
-		const badge = document.createElement("span");
-		badge.style.width = "12px";
-		badge.style.height = "12px";
-		badge.style.borderRadius = "50%";
-		badge.style.backgroundColor = s.color;
-		badge.style.flexShrink = "0";
-
-		const label = document.createElement("span");
-		label.style.fontSize = "12px";
-		label.style.fontWeight = "bold";
-		label.style.color = "#ffffff";
-		label.textContent = `${s.name} (${s.code})`;
-
-		item.appendChild(badge);
-		item.appendChild(label);
-		legendList.appendChild(item);
+		if (inputsEl) inputsEl.style.display = "";
+		onDraftChange();
+		setMessage("PDF gerado e baixado com sucesso!", "ok");
+	} catch (err) {
+		console.error("Erro no PDF:", err);
+		if (inputsEl) inputsEl.style.display = "";
+		onDraftChange();
+		setMessage("Erro ao gerar o arquivo PDF.", "error");
 	}
-	container.appendChild(legendList);
-
-	const tableContainer = document.createElement("div");
-	tableContainer.style.border = "1px solid rgba(255,255,255,0.15)";
-	tableContainer.style.borderRadius = "12px";
-	tableContainer.style.overflow = "hidden";
-	tableContainer.style.backgroundColor = "rgba(255,255,255,0.02)";
-
-	const tableClone = table.cloneNode(true);
-	tableClone.style.width = "100%";
-	tableClone.style.tableLayout = "fixed";
-	tableClone.style.borderCollapse = "collapse";
-
-	const cells = tableClone.querySelectorAll(".hour_block");
-	cells.forEach((el) => {
-		const orig = cellsById.get(el.id);
-		if (orig && orig.style.backgroundColor) {
-			el.style.backgroundColor = orig.style.backgroundColor;
-			el.style.borderRadius = "6px";
-		}
-	});
-
-	tableContainer.appendChild(tableClone);
-	container.appendChild(tableContainer);
-
-	const footer = document.createElement("div");
-	footer.style.marginTop = "16px";
-	footer.style.fontSize = "11px";
-	footer.style.color = "rgba(255,255,255,0.5)";
-	footer.style.textAlign = "right";
-	footer.textContent = "Horários UFRB - Engenharia de Computação";
-	container.appendChild(footer);
-
-	container.style.position = "absolute";
-	container.style.left = "-9999px";
-	container.style.top = "-9999px";
-	document.body.appendChild(container);
-
-	const opt = {
-		margin: 6,
-		filename: `grade_horarios_ufrb_${new Date().toISOString().slice(0, 10)}.pdf`,
-		image: { type: "jpeg", quality: 0.98 },
-		html2canvas: { scale: 2, useCORS: true, logging: false },
-		jsPDF: { unit: "mm", format: "a4", orientation: "landscape" },
-	};
-
-	html2pdf()
-		.set(opt)
-		.from(container)
-		.save()
-		.then(() => {
-			if (document.body.contains(container)) {
-				document.body.removeChild(container);
-			}
-			setMessage("PDF gerado e baixado com sucesso!", "ok");
-		})
-		.catch((err) => {
-			if (document.body.contains(container)) {
-				document.body.removeChild(container);
-			}
-			setMessage("Erro ao gerar o arquivo PDF.", "error");
-		});
 }
