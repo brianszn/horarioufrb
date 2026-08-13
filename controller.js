@@ -646,17 +646,18 @@ async function onExportPDF() {
 	document.body.appendChild(overlay);
 
 	try {
-		const canvas = await html2canvas(card, {
-			scale: 2,
-			useCORS: true,
-			backgroundColor: "#0F172A",
-			logging: false,
-		});
-
-		const imgData = canvas.toDataURL("image/jpeg", 0.98);
+		const html2canvasFn = window.html2canvas || (typeof html2canvas !== "undefined" ? html2canvas : null);
 		const jsPDFLib = (window.jspdf && window.jspdf.jsPDF) || window.jsPDF;
 
-		if (jsPDFLib) {
+		if (html2canvasFn && jsPDFLib) {
+			const canvas = await html2canvasFn(card, {
+				scale: 2,
+				useCORS: true,
+				backgroundColor: "#0F172A",
+				logging: false,
+			});
+
+			const imgData = canvas.toDataURL("image/jpeg", 0.98);
 			const pdf = new jsPDFLib({
 				orientation: "landscape",
 				unit: "mm",
@@ -678,7 +679,7 @@ async function onExportPDF() {
 
 			pdf.addImage(imgData, "JPEG", x, y, finalW, finalH);
 			pdf.save(`grade_horarios_ufrb_${new Date().toISOString().slice(0, 10)}.pdf`);
-		} else {
+		} else if (typeof html2pdf !== "undefined") {
 			const opt = {
 				margin: [6, 6, 6, 6],
 				filename: `grade_horarios_ufrb_${new Date().toISOString().slice(0, 10)}.pdf`,
@@ -687,6 +688,8 @@ async function onExportPDF() {
 				jsPDF: { unit: "mm", format: "a4", orientation: "landscape" },
 			};
 			await html2pdf().set(opt).from(card).save();
+		} else {
+			window.print();
 		}
 
 		if (document.body.contains(overlay)) {
